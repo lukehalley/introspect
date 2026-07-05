@@ -6,6 +6,10 @@
 
 [![skills.sh](https://skills.sh/b/lukehalley/introspect)](https://skills.sh/lukehalley/introspect)
 
+> **Inspired by [Ryan Brewer (@ryanbrewer)](https://x.com/ryanbrewer)** and his "Thread Introspection" idea ([original tweet](https://x.com/ryanbrewer/status/2073442315054579917)):
+>
+> "The best codex automation I've created was my 'Thread Introspection' one. Every day I have codex go through all of my threads and prompts for the day, figure out my preferences and also where codex struggled or repeated. Codex then updates my skills. It compounds really quickly"
+
 An agent-agnostic skill that reads your recent AI coding threads across **Claude Code, OpenAI
 Codex, and Cursor**, learns the preferences and corrections you keep repeating, and writes them
 back into each agent's config once you approve. Your setup compounds instead of resetting every
