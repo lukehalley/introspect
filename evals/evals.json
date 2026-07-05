@@ -30,6 +30,12 @@
       "prompt": "i use both claude code and codex during the day. look across both, find the stuff i correct in BOTH, and make it stick everywhere so i don't have to say it in each tool.",
       "expected_output": "Runs the collector with --agent all, extracts preferences that recur across both Claude and Codex threads, recognizes them as universal, and proposes a cross-agent target (a shared AGENTS.md or CLAUDE.md<->AGENTS.md symlink) rather than duplicating the rule per tool. Resolves symlinks before writing; applies on approval with ledger entries tagged by agent.",
       "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "i just installed introspect. set it up for me — i want it to ask me how i want it configured before it starts changing anything.",
+      "expected_output": "Enters Setup mode: runs setup.py scan, summarizes detected agents/threads/hook/config in plain language, then asks the unresolved decisions ONE AT A TIME with short explainers (window, safety, schedule, and the universal-pref target only if multi-agent), using the scan's recommended defaults without inflating confidence to skip asking. Writes ~/.introspect/config.json via setup.py apply, offers to install the daily hook only with explicit approval, and confirms what's wired.",
+      "files": []
     }
   ]
 }

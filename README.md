@@ -1,5 +1,7 @@
 # introspect
 
+[![skills.sh](https://skills.sh/b/lukehalley/introspect)](https://skills.sh/lukehalley/introspect)
+
 An agent-agnostic skill that reads your recent AI coding threads across **Claude Code, OpenAI
 Codex, and Cursor**, learns the preferences and corrections you keep repeating, and writes them
 back into each agent's config once you approve. Your setup compounds instead of resetting every
@@ -28,6 +30,17 @@ npx skills add lukehalley/introspect
 ```
 
 Or drop the `introspect/` folder into `~/.claude/skills/`.
+
+## Setup (interactive, ~30 seconds)
+
+Run it once. It scans what you have and asks how you want it, one question at a time. In your agent:
+
+> run introspect setup
+
+It detects which agents you use (Claude / Codex / Cursor), then asks your look-back window, safety
+mode (propose-and-approve by default), and whether to wire a daily local digest. Answers save to
+`~/.introspect/config.json`, which the collector and the daily hook read. Change them anytime by
+editing that file or re-running setup. To skip the questions: `python3 scripts/setup.py apply --non-interactive`.
 
 ## Use
 
@@ -63,16 +76,20 @@ python3 ~/.claude/skills/introspect/scripts/collect_threads.py --selftest       
 
 ## Scheduling
 
-Run it daily through your harness's **native** scheduler (in Claude Code, `/schedule`), which runs
-the routine inside the harness with the same tools and permissions, not an OS cron. Unattended
-runs write a dated report and wait for your approval rather than applying changes on their own.
+Setup can wire a **local daily hook** (a Claude Code `Stop` hook that fires once each evening). This
+is the only way to schedule it that still reads your *local* threads — cloud routines run remotely
+and can't see `~/.claude/projects`, `~/.codex/sessions`, or Cursor's DB. The hook is report-only: it
+writes a dated digest to `~/.introspect/reports/` and nudges you next session. Nothing is applied
+unattended.
 
 ## Layout
 
 ```
 introspect/
-├── SKILL.md                      the workflow + safety model
+├── SKILL.md                      the workflow, setup mode, and safety model
 ├── scripts/collect_threads.py    multi-agent transcript → digest (stdlib only, has --selftest)
+├── scripts/setup.py              interactive setup: scan → recommend → apply (has --selftest)
+├── scripts/introspect-daily.sh   the local daily-digest hook (install to ~/.claude/hooks/)
 ├── references/routing.md         which agent + surface each change belongs in, and every format
 ├── references/changeset-format.md the changeset / report / ledger templates
 └── evals/evals.json              test prompts

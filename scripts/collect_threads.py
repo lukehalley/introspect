@@ -44,6 +44,17 @@ CODEX_ROOT = os.path.expanduser("~/.codex/sessions")
 CURSOR_GLOBAL_DB = os.path.expanduser(
     "~/Library/Application Support/Cursor/User/globalStorage/state.vscdb")
 CURSOR_HOME = os.path.expanduser("~/.cursor")
+CONFIG_PATH = os.path.expanduser("~/.introspect/config.json")
+
+
+def load_config(path=CONFIG_PATH):
+    """Read ~/.introspect/config.json (written by setup.py) if present, else None. Guarded."""
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            cfg = json.load(fh)
+        return cfg if isinstance(cfg, dict) else None
+    except (OSError, json.JSONDecodeError):
+        return None
 
 # --- Redaction --------------------------------------------------------------
 # Best-effort scrub of secrets so a digest (which may be saved to a report or read aloud) never
@@ -645,7 +656,17 @@ def selftest():
         assert digest["totals"]["by_agent"] == {"claude": 1, "codex": 1, "cursor": 1}, digest["totals"]["by_agent"]
         md = to_markdown(digest)
         assert "[codex]" in md and "[cursor]" in md and "[claude]" in md
-    print("selftest: OK — claude, codex, and cursor adapters all pass")
+
+        # ---- config loader ----
+        good = os.path.join(tmp, "config.json")
+        with open(good, "w") as fh:
+            json.dump({"agents": ["claude"], "window_days": 7}, fh)
+        assert load_config(good) == {"agents": ["claude"], "window_days": 7}
+        with open(os.path.join(tmp, "bad.json"), "w") as fh:
+            fh.write("{not json")
+        assert load_config(os.path.join(tmp, "bad.json")) is None
+        assert load_config(os.path.join(tmp, "nope.json")) is None
+    print("selftest: OK — claude, codex, cursor adapters + config loader all pass")
 
 
 def main():
@@ -666,8 +687,18 @@ def main():
         selftest()
         return
 
+    cfg = load_config() or {}
+    # config (from setup.py) only fills choices the user didn't pass explicitly on the CLI
+    if args.days is None and not args.since and not args.until and not args.all:
+        wd = cfg.get("window_days")
+        if isinstance(wd, int) and wd >= 1:
+            args.days = wd
+    if args.agent == "auto" and isinstance(cfg.get("agents"), list) and cfg["agents"]:
+        agents = [a for a in cfg["agents"] if a in ADAPTERS] or detect_agents()
+    else:
+        agents = resolve_agents(args.agent)
+
     since_dt, until_dt = resolve_window(args)
-    agents = resolve_agents(args.agent)
     sessions = collect(agents, since_dt, until_dt, project_filter=args.project)
     digest = build_digest(sessions, since_dt, until_dt)
     text = json.dumps(digest, indent=2, ensure_ascii=False) if args.format == "json" else to_markdown(digest)

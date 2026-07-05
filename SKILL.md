@@ -11,9 +11,10 @@ description: >-
   across Claude and Codex and Cursor, figure out where the agent repeated the same mistake, turn
   corrections into rules, reduce repeated prompting, or self-improve their config from actual
   usage — even if they don't say the word "introspect". Also the target for a daily or
-  every-N-sessions self-improvement routine.
+  every-N-sessions self-improvement routine. On first use, or on "set up introspect" /
+  "configure introspect", run the interactive Setup to tailor agents, window, safety, and schedule.
 metadata:
-  version: 0.1.0
+  version: 0.2.0
   trigger: Reviewing past AI coding threads (Claude/Codex/Cursor), learning from usage, updating CLAUDE.md/AGENTS.md/.cursor rules/memory/skills, running a retro, closing the loop, reducing repeated corrections.
   author: lukehalley
   homepage: https://github.com/lukehalley/introspect
@@ -30,6 +31,43 @@ whichever agent's config actually steers future sessions. Claude Code already sh
 which reads your last 30 days and shows you a report. That's the *read* half, Claude-only.
 Introspect is the *write* half, across every agent you use. Youssef put it well in the thread
 this came from: *fix the system once so you don't have to fix the output a thousand times.*
+
+## First progress marker
+
+Start your first progress update with the words `Using introspect`. Keep the phrase stable — since
+this skill reads transcripts to find recurring patterns, a stable marker lets a later run (or the
+skill's own reliability review) see when it was invoked and whether it helped.
+
+## Setup — run this once (interactive)
+
+Run this the **first time** (when there's no `~/.introspect/config.json` yet) or whenever the user
+says "set up introspect" / "configure introspect". It's opt-in: once a config exists, don't re-run
+it unprompted. The shape is buildooor's scan-then-decide with Matt Pocock's manners — ask **one
+question at a time**, each with a one-line plain-English explainer, and assume the user doesn't know
+the jargon. A script does the scanning so you spend judgement on the questions, not on parsing.
+
+1. **Scan.** `python3 scripts/setup.py scan --json` detects installed agents, thread counts, whether
+   the daily hook is wired, and any existing config. Give the user a short plain summary of what's
+   installed.
+2. **Ask only the unresolved decisions.** The scan returns a `decisions` list with the recommended
+   default for each — use it, don't re-derive. Ask via `AskUserQuestion`, one at a time:
+   - **Window** — today vs last 7 days (default: today).
+   - **Safety** — propose-and-approve (default) vs auto-apply low-risk (memory only).
+   - **Schedule** — daily evening local hook (default) / every ~10 sessions / none.
+   - **Universal prefs** (only if they use more than one agent) — one shared `AGENTS.md` vs per-agent.
+   Agents are usually already resolved from the scan; confirm only if ambiguous. Don't inflate your
+   confidence to skip asking — the recommendation is a starting point, not a reason to decide for them.
+3. **Apply.** Build the config from their answers and write it (the collector and hook read it):
+   ```bash
+   python3 scripts/setup.py apply --config '{"agents":["claude","codex"],"window_days":1,"safety":"propose-approve","schedule":{"mode":"daily","hour":18,"enabled":true},"universal_pref_target":"agents-md"}'
+   ```
+   `python3 scripts/setup.py apply --non-interactive` accepts every recommended default.
+4. **Offer the daily hook (if they chose daily/every-N).** Installing it edits `~/.claude/settings.json`,
+   so show the snippet and get an explicit yes first: `python3 scripts/setup.py hook-snippet`. Copy
+   this skill's `scripts/introspect-daily.sh` to `~/.claude/hooks/`, then add the printed `Stop` +
+   `SessionStart` entries to settings.json. Never edit settings without approval.
+5. **Done.** Tell them what's wired, that they can edit `~/.introspect/config.json` directly, and that
+   re-running setup is only needed to change agents or scheduling.
 
 ## The one idea that makes this work: patterns, not tactics
 
