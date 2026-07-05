@@ -1,0 +1,35 @@
+{
+  "skill_name": "introspect",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "ok it's end of day, go through everything i did in claude code today and tell me what i kept correcting you on — i feel like i keep saying the same stuff. update my setup so i stop having to.",
+      "expected_output": "Runs collect_threads.py over today's transcripts, extracts recurring corrections (not one-offs), diffs against existing CLAUDE.md/memory, and presents a small evidence-backed changeset for approval. Applies only what's approved and writes a dated report.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "review the last week of my threads across all my projects and figure out where you (claude) kept making the same mistake or re-deriving the same thing. i don't want one-off tips, i want the habits.",
+      "expected_output": "Uses --days 7, focuses on recurring friction across multiple sessions rather than single-session tactics, proposes rules/skills/scripts targeting the repeated patterns, capped and ranked by recurrence.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "set this up to run automatically every evening and quietly log what it finds so i can approve changes in the morning",
+      "expected_output": "Registers a daily run via the harness-native scheduler (schedule skill / CronCreate), configures the unattended run to write a dated report with a proposed changeset and NOT auto-apply CLAUDE.md/skill edits, and explains how approval works on the next interactive session.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "i keep telling you to use pnpm not npm and to run tests before committing. can you just make that stick",
+      "expected_output": "Recognizes these as durable preferences, checks whether they're already in CLAUDE.md (strengthen vs add), routes them to the correct surface (global CLAUDE.md rule), shows the exact diff, and applies on approval with a ledger entry.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "i use both claude code and codex during the day. look across both, find the stuff i correct in BOTH, and make it stick everywhere so i don't have to say it in each tool.",
+      "expected_output": "Runs the collector with --agent all, extracts preferences that recur across both Claude and Codex threads, recognizes them as universal, and proposes a cross-agent target (a shared AGENTS.md or CLAUDE.md<->AGENTS.md symlink) rather than duplicating the rule per tool. Resolves symlinks before writing; applies on approval with ledger entries tagged by agent.",
+      "files": []
+    }
+  ]
+}
