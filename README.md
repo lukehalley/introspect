@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/header.webp" alt="introspect — the write half of /insights" width="100%">
+</p>
+
 # introspect
 
 [![skills.sh](https://skills.sh/b/lukehalley/introspect)](https://skills.sh/lukehalley/introspect)
